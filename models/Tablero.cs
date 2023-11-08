@@ -1,3 +1,4 @@
+namespace Models;
 public enum EstadoTarea
 {
     Ideas,
