@@ -1,14 +1,14 @@
 using System.Data.SQLite;
-using Models;
+using kanban.Models;
 
-namespace Repository;
+namespace kanban.Repository;
 
 public class TareaRepository : ITareaRepository
 {
     private readonly string connectionString = "Data Source=DB/kanban.db;Cache=Shared";
     public void AssignUserToTask(int userId, int taskId)
     {
-        var queryString = @"UPDATE Tarea SET id_usuario_propietario = @userId WHERE id = @taskId;";
+        var queryString = @"UPDATE Tarea SET id_usuario_asignado = @userId WHERE id = @taskId;";
 
         using var connection = new SQLiteConnection(connectionString);
         using var command = new SQLiteCommand(queryString, connection);
@@ -21,30 +21,27 @@ public class TareaRepository : ITareaRepository
         connection.Close();
     }
 
-    public Tarea CreateTask(int boardId)
+    public void CreateTask(int boardId, Tarea task)
     {
-        var query = $"INSERT INTO tarea (nombre_de_usuario) VALUES (id_tablero) VALUES(@boardId);";
-        using var connection = new SQLiteConnection(connectionString);
+        var query = $"INSERT INTO tarea (id_tablero, nombre, estado, descripcion, color, id_usuario_asignado) VALUES (@id_tablero, @name, @estado, @descripcion, @color, @usuario)";
+        using SQLiteConnection connection = new(connectionString);
+
         connection.Open();
         var command = new SQLiteCommand(query, connection);
-        command.Parameters.Add(new SQLiteParameter("@boardId", boardId));
 
-        //  se crea un default ?
-
-        // command.Parameters.Add(new SQLiteParameter("@nombre", task.Nombre));
-        // command.Parameters.Add(new SQLiteParameter("@estado", task.Estado));
-        // command.Parameters.Add(new SQLiteParameter("@descripcion", task.Descripcion));
-        // command.Parameters.Add(new SQLiteParameter("@color", task.Color));
+        command.Parameters.Add(new SQLiteParameter("@id_tablero", boardId)); // porque le estamos mandando por parametro 
+        command.Parameters.Add(new SQLiteParameter("@name", task.Nombre));
+        command.Parameters.Add(new SQLiteParameter("@estado", (int)task.Estado));
+        command.Parameters.Add(new SQLiteParameter("@descripcion", task.Descripcion));
+        command.Parameters.Add(new SQLiteParameter("@color", task.Color));
+        command.Parameters.Add(new SQLiteParameter("@usuario", task.IdUsuarioAsignado));
 
         command.ExecuteNonQuery();
 
         connection.Close();
-        // que deberia devolver ? 
-        return new Tarea();
-
     }
 
-    public void DeleteBoard(int taskId)
+    public void DeleteTask(int taskId)
     {
         using var connection = new SQLiteConnection(connectionString);
         connection.Open();
@@ -73,7 +70,7 @@ public class TareaRepository : ITareaRepository
                 task.Estado = (EstadoTarea)Convert.ToInt32(reader["estado"]);
                 task.Descripcion = reader["descripcion"].ToString();
                 task.Color = reader["color"].ToString();
-                task.IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_propietario"]);
+                task.IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_asignado"]);
             }
         }
         connection.Close();
@@ -103,7 +100,7 @@ public class TareaRepository : ITareaRepository
                         Estado = (EstadoTarea)Convert.ToInt32(reader["estado"]),
                         Descripcion = reader["descripcion"].ToString(),
                         Color = reader["color"].ToString(),
-                        IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_propietario"])
+                        IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_asignado"])
                     };
                     tasks.Add(task);
                 }
@@ -115,7 +112,7 @@ public class TareaRepository : ITareaRepository
 
     public List<Tarea> ListTasksByUser(int userId)
     {
-        var queryString = @"SELECT * FROM tarea WHERE id_usuario_propietario = @userId;";
+        var queryString = @"SELECT * FROM tarea WHERE id_usuario_asignado = @userId;";
         var tasks = new List<Tarea>();
 
         using (var connection = new SQLiteConnection(connectionString))
@@ -136,7 +133,7 @@ public class TareaRepository : ITareaRepository
                         Estado = (EstadoTarea)Convert.ToInt32(reader["estado"]),
                         Descripcion = reader["descripcion"].ToString(),
                         Color = reader["color"].ToString(),
-                        IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_propietario"])
+                        IdUsuarioAsignado = Convert.ToInt32(reader["id_usuario_asignado"])
                     };
                     tasks.Add(task);
                 }

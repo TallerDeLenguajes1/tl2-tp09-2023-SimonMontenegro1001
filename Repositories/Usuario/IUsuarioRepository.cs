@@ -1,6 +1,6 @@
-using Models;
+using kanban.Models;
 
-namespace Repository;
+namespace kanban.Repository;
 public interface IUsuarioRepository
 {
     public void CreateUser(Usuario user);

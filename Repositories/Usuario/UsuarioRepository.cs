@@ -1,7 +1,7 @@
 using System.Data.SQLite;
-using Models;
+using kanban.Models;
 
-namespace Repository;
+namespace kanban.Repository;
 
 public class UsuarioRepository : IUsuarioRepository
 {
@@ -51,9 +51,6 @@ public class UsuarioRepository : IUsuarioRepository
             }
             connection.Close();
         }
-
-
-
         return user;
     }
 

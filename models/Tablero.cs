@@ -1,4 +1,4 @@
-namespace Models;
+namespace kanban.Models;
 public enum EstadoTarea
 {
     Ideas,

@@ -1,7 +1,7 @@
 using System.Data.SQLite;
-using Models;
+using kanban.Models;
 
-namespace Repository;
+namespace kanban.Repository;
 
 public class TableroRepository : ITableroRepository
 {
@@ -16,16 +16,16 @@ public class TableroRepository : ITableroRepository
 
         var command = new SQLiteCommand(queryString, connection);
 
-        command.Parameters.Add(new SQLiteParameter("@idUsuario", board.IdUsuarioPropietario));
-        command.Parameters.Add(new SQLiteParameter("@nombre", board.Nombre));
-        command.Parameters.Add(new SQLiteParameter("@descripcion", board.Descripcion));
+        command.Parameters.Add(new SQLiteParameter("@ownerUserId", board.IdUsuarioPropietario));
+        command.Parameters.Add(new SQLiteParameter("@name", board.Nombre));
+        command.Parameters.Add(new SQLiteParameter("@description", board.Descripcion));
 
         command.ExecuteNonQuery();
         connection.Close();
 
         // wtf xd
 
-        return new Tablero();
+        return board;
     }
 
     public void DeleteBoard(int boardId)
